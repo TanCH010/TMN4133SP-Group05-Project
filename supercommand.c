@@ -187,10 +187,6 @@ int main(int argc, char *argv[]) {
         // ========== MODE 1: FILE OPERATIONS ==========
         // File Operation
         case 1:
-            if (argc < 5) {
-            fprintf(stderr, "Usage for file ops: %s -m 1 <operation> <filename> [param]\n", argv[0]);
-            return 1;
-            }
             const char *filename = argv[4];
     
             switch (operation) {
