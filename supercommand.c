@@ -148,25 +148,26 @@ void list_directory(const char *path) {
     }
     closedir(dir_ptr);
 }
+// ================ Directory Operations END (Mode 2) ================
 
 // Main function
 int main(int argc, char *argv[]) {
     /*
       Usage examples:
         // FILE (mode=1):
-        ./integrated_ops -m 1 1 newFile.txt           // Create file (create if not exist)
-        ./integrated_ops -m 1 1 newFile.txt trunc     // Create file (truncate if exist)
-        ./integrated_ops -m 1 2 existingFile.txt rw   // Open file read/write
-        ./integrated_ops -m 1 3 file.txt 0644         // Change file permission to 0644
-        ./integrated_ops -m 1 4 file.txt              // Read file
-        ./integrated_ops -m 1 5 file.txt              // Write to file
-        ./integrated_ops -m 1 6 file.txt              // Remove file
+        ./supercommand -m 1 1 newFile.txt           // Create file (create if not exist)
+        ./supercommand -m 1 1 newFile.txt trunc     // Create file (truncate if exist)
+        ./supercommand -m 1 2 existingFile.txt rw   // Open file read/write
+        ./supercommand -m 1 3 file.txt 0644         // Change file permission to 0644
+        ./supercommand -m 1 4 file.txt              // Read file
+        ./supercommand -m 1 5 file.txt              // Write to file
+        ./supercommand -m 1 6 file.txt              // Remove file
 
         // DIRECTORY (mode=2):
-        ./integrated_ops -m 2 1 myDir                 // Create directory
-        ./integrated_ops -m 2 2 myDir                 // Remove directory
-        ./integrated_ops -m 2 3                       // Print working directory
-        ./integrated_ops -m 2 4 myDir                 // List files in directory
+        ./supercommand -m 2 1 myDir                 // Create directory
+        ./supercommand -m 2 2 myDir                 // Remove directory
+        ./supercommand -m 2 3                       // Print working directory
+        ./supercommand -m 2 4 myDir                 // List files in directory
 
     */
     if (argc < 3) {
@@ -226,6 +227,7 @@ int main(int argc, char *argv[]) {
                     fprintf(stderr, "Error: Invalid file operation.\n");
                     return 1;
             }
+            break;
         // ========== MODE 2: DIRECTORY OPERATIONS ==========
         // Directory Operation
         case 2:
