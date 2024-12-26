@@ -5,7 +5,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h>
-
+#include <fcntl.h>
+#include <time.h>
+#include <errno.h>
 
 // ================ File Operations BEGIN (Mode 1) ================
 void create_file(const char *filename, int truncateExisting) {
