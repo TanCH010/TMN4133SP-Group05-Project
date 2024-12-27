@@ -1,7 +1,19 @@
 Initial commit
 
 # TMN4133SP--Group05-Project
-Tan Chuan Hock
+Tan Chuan Hock (81341)
+Rahul Kumar Shawn A/L Rajesh Kumar (82102)
+Richard Jong Wei Ze (81049)
+Yeow Lik Zen (81540)	
+
+<br>
+- TASK A: Coding Task
+- TASK B: TESTING AND EVALUATION
+- TASK C: REFLECTION
+- TASK D: USING GITHUB 
+- TASK E: PROJECT PRESENTATION
+
+<br>
 
 ## Table of Contents
 
