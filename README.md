@@ -1,6 +1,7 @@
 Initial commit
 
 # TMN4133SP--Group05-Project
+Tan Chuan Hock
 
 ## Table of Contents
 
