@@ -76,7 +76,7 @@ void write_file(const char *filename) {
         perror("Error opening file for writing");
         return;
     }
-    printf("Enter text (end with Ctrl+D):\n");
+    printf("Enter text (end with Enter followed by Ctrl+D):\n");
     char buffer[1024];
     while (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         ssize_t written = write(fd, buffer, strlen(buffer));
