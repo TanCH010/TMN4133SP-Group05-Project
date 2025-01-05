@@ -14,11 +14,51 @@
 #include <sys/wait.h>
 
 // ================ File Operations BEGIN (Mode 1) ================
-void create_file(const char *filename, int truncateExisting) {
-    int flags = O_RDWR | O_CREAT;
-    if (truncateExisting) {
-        flags |= O_TRUNC;
+void create_file(const char *filename) {
+    struct stat fileStat;
+
+    // Check if the file already exists
+    if (stat(filename, &fileStat) == 0) {
+        int truncateExisting;
+        printf("The file '%s' already exists. Truncate it? (1 for yes, 0 for no): ", filename);
+        if (scanf("%d", &truncateExisting) != 1) {
+            while (getchar() != '\n');
+            printf("Invalid input. Please enter a number.\n");
+            return;
+        }
+
+        if (truncateExisting) {
+            // Ask the user how to open the file
+            int readWrite;
+            printf("Open the file in read/write mode? (1 for yes, 0 for read-only): ");
+            if (scanf("%d", &readWrite) != 1) {
+                while (getchar() != '\n');
+                printf("Invalid input. Please enter a number.\n");
+                return;
+            }
+
+            int flags = readWrite ? (O_RDWR | O_CREAT | O_TRUNC) : (O_RDONLY | O_CREAT | O_TRUNC);
+            int fd = open(filename, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+            if (fd == -1) {
+                perror("Error creating/opening file");
+            } else {
+                printf("File '%s' created/opened with truncation. Descriptor: %d\n", filename, fd);
+                close(fd);
+            }
+            return;
+        }
     }
+
+    // File does not exist or truncation not chosen
+    int readWrite;
+    printf("Open the file in read/write mode? (1 for yes, 0 for read-only): ");
+    if (scanf("%d", &readWrite) != 1) {
+        while (getchar() != '\n');
+        printf("Invalid input. Please enter a number.\n");
+        return;
+    }
+
+    int flags = readWrite ? O_RDWR | O_CREAT : O_RDONLY | O_CREAT;
     int fd = open(filename, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
     if (fd == -1) {
         perror("Error creating/opening file");
@@ -357,13 +397,7 @@ void file_operation() {
             case 1:
                 printf("Enter the file name to create: ");
                 scanf("%s", filename);
-                printf("Truncate existing file? (1 for yes, 0 for no): ");
-                if (scanf("%d", &truncateExisting) != 1) {
-                    while (getchar() != '\n');
-                    printf("Invalid input. Please enter a number.\n");
-                    continue;
-                }
-                create_file(filename, truncateExisting);
+                create_file(filename);
                 break;
             case 2:
                 printf("Enter the file name to open: ");
