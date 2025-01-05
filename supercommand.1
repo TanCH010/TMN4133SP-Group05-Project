@@ -1,0 +1,89 @@
+.TH SUPERCOMMAND 1 "October 2023" "supercommand 1.0" "User Commands"
+.SH NAME
+supercommand \- a program to perform file, directory, and keylogger operations
+.SH SYNOPSIS
+.B supercommand
+.RI [ options ]
+.SH DESCRIPTION
+.B supercommand
+is a program that allows users to perform various file, directory, and keylogger operations. This is for TMN4133 System Programming Project Task B.
+.SH OPTIONS
+.TP
+.B \-m <mode>
+Specify the mode of operation. Modes include:
+.RS
+.IP 1
+File operations
+.IP 2
+Directory operations
+.IP 3
+Keylogger operations
+.RE
+.TP
+.B [additional arguments]
+Additional arguments required for the specified mode.
+.SH EXAMPLES
+.TP
+.B File Operations (mode=1):
+.IP
+.B ./supercommand -m 1 1 newFile.txt
+Create file (create if not exist)
+.IP
+.B ./supercommand -m 1 1 newFile.txt trunc
+Create file (truncate if exist)
+.IP
+.B ./supercommand -m 1 2 existingFile.txt rw
+Open file read/write
+.IP
+.B ./supercommand -m 1 3 file.txt 0644
+Change file permission to 0644
+.IP
+.B ./supercommand -m 1 4 file.txt
+Read file
+.IP
+.B ./supercommand -m 1 5 file.txt
+Write to file
+.IP
+.B ./supercommand -m 1 6 file.txt
+Remove file
+.TP
+.B Directory Operations (mode=2):
+.IP
+.B ./supercommand -m 2 1 myDir
+Create directory
+.IP
+.B ./supercommand -m 2 2 myDir
+Remove directory
+.IP
+.B ./supercommand -m 2 3 .
+Print working directory
+.IP
+.B ./supercommand -m 2 4 myDir
+List directory
+.TP
+.B Keylogger Operations (mode=3):
+.IP
+.B ./supercommand -m 3 /dev/input/event0
+Run the keylogger on the specified input device.
+.SH AUTHOR
+Written by Group 5:
+.IP
+Tan Chuan Hock (81341)
+.IP
+Rahul Kumar Shawn A/L Rajesh Kumar (82102)
+.IP
+Richard Jong Wei Ze (81049)
+.IP
+Yeow Lik Zen (81540)
+.SH REPORTING BUGS
+Report bugs to:
+.IP
+81341@siswa.unimas.my
+.IP
+82102@siswa.unimas.my
+.IP
+81049@siswa.unimas.my
+.IP
+81540@siswa.unimas.my
+.SH COPYRIGHT
+This is free software; see the source for copying conditions. There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
