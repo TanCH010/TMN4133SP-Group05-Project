@@ -76,17 +76,26 @@ void write_file(const char *filename) {
         perror("Error opening file for writing");
         return;
     }
-    printf("Enter text (end with Enter):\n");
+    printf("Enter text (end with Enter followed by Ctrl+D):\n");
     char buffer[1024];
-    if (fgets(buffer, sizeof(buffer), stdin) != NULL) {
+    while (fgets(buffer, sizeof(buffer), stdin) != NULL) {
         ssize_t written = write(fd, buffer, strlen(buffer));
         if (written == -1) {
             perror("Error writing to file");
+            close(fd);
+            return;
         }
     }
+    if (ferror(stdin)) {
+        perror("Error reading input");
+    }
     close(fd);
+
+    // Clear the EOF state and flush stdin
+    clearerr(stdin);
     printf("Content written to '%s'.\n", filename);
 }
+
 
 void remove_file_op(const char *filename) {
     if (unlink(filename) == -1) {
