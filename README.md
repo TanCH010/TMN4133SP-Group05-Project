@@ -45,6 +45,7 @@ To run this script, you will need:
     sudo mkdir -p /usr/local/share/man/man1
     sudo cp supercommand.1 /usr/local/share/man/man1/
     sudo mandb
+    man supercommand
     ```
 
 ## Usage
