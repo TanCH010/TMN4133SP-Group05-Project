@@ -115,7 +115,7 @@ To run this script, you will need:
 
 - Run the keylogger on the specified input device:
     ```sh
-    ./supercommand -m 3 /dev/input/event0
+    sudo ./supercommand -m 3 /dev/input/event0
     ```
 
 ### Menu-Based Usage (supercommand_menu.c)
