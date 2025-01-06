@@ -120,6 +120,10 @@ To run this script, you will need:
 
 ### Menu-Based Usage (supercommand_menu.c)
 
-Run the menu-based program:
+- Obtain su root privilege before running the menu-based program by:
+```sh
+sudo su
+```
+- Run the menu-based program:
 ```sh
 ./supercommand_menu
