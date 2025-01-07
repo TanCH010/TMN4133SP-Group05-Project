@@ -103,7 +103,7 @@ To run this script, you will need:
 
 - Print working directory:
     ```sh
-    ./supercommand -m 2 3
+    ./supercommand -m 2 3 .
     ```
 
 - List directory:
