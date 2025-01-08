@@ -50,7 +50,18 @@ To run this script, you will need:
 
 ## Usage
 
-### Command-Line Usage (supercommand.c)
+### Task A - Menu-Based Usage (supercommand_menu.c)
+
+- Obtain su root privilege before running the menu-based program by:
+```sh
+sudo su
+```
+- Run the menu-based program:
+```sh
+./supercommand_menu
+```
+
+### Task B - Command-Line Usage (supercommand.c)
 
 #### File Operations (mode=1)
 
@@ -117,13 +128,3 @@ To run this script, you will need:
     ```sh
     sudo ./supercommand -m 3 /dev/input/event0
     ```
-
-### Menu-Based Usage (supercommand_menu.c)
-
-- Obtain su root privilege before running the menu-based program by:
-```sh
-sudo su
-```
-- Run the menu-based program:
-```sh
-./supercommand_menu
